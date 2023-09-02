@@ -10,3 +10,5 @@ Things to add, in no particular order:
 - get CI/CD working. EDOPro should be built as part of a Github Action
 - use poetry
 - use Docker
+
+Needs wmctrl, Xvfb, ffmpeg, scrot
