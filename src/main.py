@@ -1,4 +1,3 @@
-from collections import deque
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -13,8 +12,7 @@ load_dotenv()
 prefix = '!'  # Can change this later
 vid_path = '/tmp/output.mp4'
 edopro_path = os.path.expanduser('~/ProjectIgnis')
-FPS = 10  # Can change this later, but this is probably the max for remote desktop'
-w, h = 1440, 816  # equivalent to full screen on mac
+# width = 1000, height = 600 (make a window with xvfb)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -43,21 +41,22 @@ async def convert(ctx, *args):
         replay = await message.attachments[0].save(os.path.join(edopro_path, f'replay/{replay_name}'))
         
         # Maximize EDOPro window and enter replay
-        os.system("wmctrl -r 'Project Ignis: EDOPro' -e 0,0,0,1000,600")
+        os.system("wmctrl -r 'Project Ignis: EDOPro' -b add,fullscreen")
         os.system("wmctrl -a 'Project Ignis: EDOPro'")
         time.sleep(0.5)
-        pyautogui.click(573, 393)  # Click replays button
+        pyautogui.click(500, 346)  # Click replays button
         time.sleep(0.5)
-        pyautogui.click(340, 181)  # Select first replay
+        pyautogui.click(266, 137)  # Select first replay
         time.sleep(0.5)
-        pyautogui.click(802, 501)  # Enter replay
+        pyautogui.click(742, 468)  # Enter replay
         pyautogui.moveTo(10, 10)   # Move mouse away from screen
 
         # Start subprocess for ffmpeg screen recording
-        rec = subprocess.Popen(f'ffmpeg -y -video_size 690x580 -framerate 24 -f x11grab -i :1.0+374,67 -pix_fmt yuv420p -c:v libx264 -crf 35 -preset ultrafast -an {vid_path}', stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)  # change codec to work on mobile
+        x, y, w, h = 322, 4, 676, 594
+        rec = subprocess.Popen(f'ffmpeg -y -video_size {w}x{h} -framerate 24 -f x11grab -i :0.0+{x},{y} -pix_fmt yuv420p -c:v libx264 -crf 35 -preset ultrafast -an {vid_path}', stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
 	    
 	    # Detect when replay is finished (the "replay ended" box appears)
-        x, y, w, h = 644, 274, 244, 61
+        x, y, w, h = 581, 225, 256, 77
         total, div = 1, 4  # (total) seconds of solid white, checking every (total/div) seconds
         white = Image.new('RGB', (w, h), (255, 255, 255))
         count = 0
@@ -71,9 +70,9 @@ async def convert(ctx, *args):
         await ctx.channel.send(f'{message.author.mention}, your replay is ready.', file=discord.File(vid_path))
 	        
         # Back to EDOPro main menu
-        pyautogui.click(723, 361)  # Exit replay
+        pyautogui.click(667, 317)  # Exit replay
         time.sleep(0.5)
-        pyautogui.click(800, 541)  # Exit replay menu
+        pyautogui.click(738, 498)  # Exit replay menu
         
 
 
